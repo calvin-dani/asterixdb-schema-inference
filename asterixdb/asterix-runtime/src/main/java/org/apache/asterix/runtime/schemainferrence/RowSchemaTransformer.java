@@ -27,6 +27,7 @@ import org.apache.asterix.runtime.schemainferrence.collection.GenericListRowSche
 import org.apache.asterix.runtime.schemainferrence.collection.MultisetRowSchemaNode;
 // import org.
 import org.apache.asterix.runtime.schemainferrence.lazy.IObjectRowSchemaNodeVisitor;
+import org.apache.asterix.runtime.schemainferrence.lazy.metadata.RowFieldNamesDictionary;
 import org.apache.asterix.runtime.schemainferrence.primitive.PrimitiveRowSchemaNode;
 import org.apache.hyracks.api.exceptions.HyracksDataException;
 import org.apache.hyracks.data.std.api.IValueReference;
@@ -40,6 +41,16 @@ public class RowSchemaTransformer implements IObjectRowSchemaNodeVisitor<Abstrac
     private final ObjectRowSchemaNode root;
     private AbstractRowSchemaNestedNode currentParent;
     private int primaryKeysLength;
+
+    public RowFieldNamesDictionary getToMergeFieldNamesDictionary() {
+        return toMergeFieldNamesDictionary;
+    }
+
+    public void setToMergeFieldNamesDictionary(RowFieldNamesDictionary toMergeFieldNamesDictionary) {
+        this.toMergeFieldNamesDictionary = toMergeFieldNamesDictionary;
+    }
+
+    private RowFieldNamesDictionary toMergeFieldNamesDictionary;
 
     public ObjectRowSchemaNode getRoot() {
         return root;
@@ -77,9 +88,10 @@ public class RowSchemaTransformer implements IObjectRowSchemaNodeVisitor<Abstrac
         IntList fieldNameIndexes = toMergeRoot.getChildrenFieldNameIndexes();
         for (int i = 0; i < toMergeRoot.getNumberOfChildren(); i++) {
             int index = fieldNameIndexes.getInt(i);
+            IValueReference fieldName = this.toMergeFieldNamesDictionary.getFieldName(index);
             AbstractRowSchemaNode child = toMergeRoot.getChild(index);
             //            ObjectRowSchemaNode objectMergeNode = (ObjectRowSchemaNode) child;
-            IValueReference fieldName = child.getFieldName();
+//            IValueReference fieldName = child.getFieldName();
             ATypeTag childTypeTag = child.getTypeTag();
             if (childTypeTag == ATypeTag.UNION) {
                 UnionRowSchemaNode unionChild = (UnionRowSchemaNode) child;
