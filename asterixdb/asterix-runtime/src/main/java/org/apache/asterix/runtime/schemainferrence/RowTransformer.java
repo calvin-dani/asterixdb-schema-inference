@@ -135,7 +135,7 @@ public class RowTransformer implements ILazyVisitablePointableVisitor<AbstractRo
             if (childTypeTag == ATypeTag.NULL || childTypeTag == ATypeTag.MISSING) {
                 actualNode = unionNode.getOriginalType();
             } else {
-                actualNode = unionNode.getOrCreateChild(pointable.getTypeTag(), rowMetadata, fieldName);
+                actualNode = unionNode.getOrCreateChild(pointable.getTypeTag(), rowMetadata);
             }
             pointable.accept(this, actualNode);
 

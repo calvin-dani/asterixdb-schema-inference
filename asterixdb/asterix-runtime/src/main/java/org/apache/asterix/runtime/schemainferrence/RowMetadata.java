@@ -66,8 +66,8 @@ public final class RowMetadata extends AbstractRowMetadata {
 
         level = -1;
         fieldNamesDictionary = new RowFieldNamesDictionary();
-        ArrayBackedValueStorage initFieldName = new ArrayBackedValueStorage(1);
-        root = new ObjectRowSchemaNode(initFieldName);
+//        ArrayBackedValueStorage initFieldName = new ArrayBackedValueStorage(1);
+        root = new ObjectRowSchemaNode();
         metaRoot = null;
         nullWriterIndexes = new IntArrayList();
         //Add definition levels for the root
@@ -202,7 +202,7 @@ public final class RowMetadata extends AbstractRowMetadata {
         if (currentChild == null || normalizedTypeTag != ATypeTag.MISSING && normalizedTypeTag != ATypeTag.NULL
                 && currentChild.getTypeTag() != ATypeTag.UNION && currentChild.getTypeTag() != normalizedTypeTag) {
             //Create a new child or union type if required type is different from the current child type
-            currentChild = createChild(child, normalizedTypeTag, fieldName);
+            currentChild = createChild(child, normalizedTypeTag);
             //Flag that the schema has changed
             changed = true;
         }
@@ -245,14 +245,14 @@ public final class RowMetadata extends AbstractRowMetadata {
         AbstractRowSchemaNode createdChild;
         if (child != null) {
             if (child.getTypeTag() == ATypeTag.NULL) {
-                createdChild = createChild(normalizedTypeTag, fieldName);
+                createdChild = createChild(normalizedTypeTag);
                 System.out.println("TO BE REIMPLEMENTED WITH THIS CASE : CALVIN DANI");
             } else {
                 //Different type. Make union
-                createdChild = new UnionRowSchemaNode(child, createChild(normalizedTypeTag, fieldName));
+                createdChild = new UnionRowSchemaNode(child, createChild(normalizedTypeTag));
             }
         } else {
-            createdChild = createChild(normalizedTypeTag, fieldName);
+            createdChild = createChild(normalizedTypeTag);
         }
         return createdChild;
     }
@@ -261,31 +261,30 @@ public final class RowMetadata extends AbstractRowMetadata {
     private AbstractRowSchemaNode createChild(AbstractRowSchemaNode child, ATypeTag normalizedTypeTag)
             throws HyracksDataException {
         AbstractRowSchemaNode createdChild;
-        ArrayBackedValueStorage initFieldName = new ArrayBackedValueStorage();
+//        ArrayBackedValueStorage initFieldName = new ArrayBackedValueStorage();
         if (child != null) {
             if (child.getTypeTag() == ATypeTag.NULL) {
-                createdChild = createChild(normalizedTypeTag, initFieldName);
-                System.out.println("TO BE REIMPLEMENTED WITH THIS CASE : CALVIN DANI");
+                createdChild = createChild(normalizedTypeTag);
             } else {
                 //Different type. Make union
-                createdChild = new UnionRowSchemaNode(child, createChild(normalizedTypeTag, initFieldName));
+                createdChild = new UnionRowSchemaNode(child, createChild(normalizedTypeTag));
             }
         } else {
-            createdChild = createChild(normalizedTypeTag, initFieldName);
+            createdChild = createChild(normalizedTypeTag);
         }
         return createdChild;
     }
 
     // Create object , array , multiset and primitive node
-    private AbstractRowSchemaNode createChild(ATypeTag normalizedTypeTag, IValueReference fieldName)
+    private AbstractRowSchemaNode createChild(ATypeTag normalizedTypeTag)
             throws HyracksDataException {
         switch (normalizedTypeTag) {
             case OBJECT:
-                return new ObjectRowSchemaNode(fieldName);
+                return new ObjectRowSchemaNode();
             case ARRAY:
-                return new ArrayRowSchemaNode(fieldName);
+                return new ArrayRowSchemaNode();
             case MULTISET:
-                return new MultisetRowSchemaNode(fieldName);
+                return new MultisetRowSchemaNode();
             case NULL:
             case MISSING:
             case BOOLEAN:
@@ -293,8 +292,6 @@ public final class RowMetadata extends AbstractRowMetadata {
             case BIGINT:
             case STRING:
             case UUID:
-                //                int columnIndex = nullWriterIndexes.isEmpty() ? this.sizeOfWriters : nullWriterIndexes.removeInt(0);
-
                 return new PrimitiveRowSchemaNode(normalizedTypeTag, false);
             default:
                 throw new IllegalStateException("Unsupported type " + normalizedTypeTag);

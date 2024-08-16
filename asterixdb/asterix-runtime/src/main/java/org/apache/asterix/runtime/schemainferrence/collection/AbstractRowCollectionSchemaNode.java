@@ -52,9 +52,15 @@ public abstract class AbstractRowCollectionSchemaNode extends AbstractRowSchemaN
     private IValueReference fieldName;
 
     AbstractRowCollectionSchemaNode(IValueReference fieldName) {
-        this.fieldName = fieldName;
+//        this.fieldName = fieldName;
         item = null;
     }
+
+    AbstractRowCollectionSchemaNode() {
+//        this.fieldName = fieldName;
+        item = null;
+    }
+
 
     AbstractRowCollectionSchemaNode(DataInput input) throws IOException {
         item = AbstractRowSchemaNestedNode.deserialize(input);
@@ -105,11 +111,11 @@ public abstract class AbstractRowCollectionSchemaNode extends AbstractRowSchemaN
     }
 
     public static AbstractRowCollectionSchemaNode create(ATypeTag typeTag) {
-        IValueReference initFieldName = new ArrayBackedValueStorage();
+//        IValueReference initFieldName = new ArrayBackedValueStorage();
         if (typeTag == ATypeTag.ARRAY) {
-            return new ArrayRowSchemaNode(initFieldName);
+            return new ArrayRowSchemaNode();
         }
-        return new MultisetRowSchemaNode(initFieldName);
+        return new MultisetRowSchemaNode();
     }
 
     public final <R, T> R accept(IObjectRowSchemaNodeVisitor<R, T> visitor, T arg) throws HyracksDataException {

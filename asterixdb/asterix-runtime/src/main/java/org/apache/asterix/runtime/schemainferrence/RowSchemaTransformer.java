@@ -95,6 +95,7 @@ public class RowSchemaTransformer implements IObjectRowSchemaNodeVisitor<Abstrac
             ATypeTag childTypeTag = child.getTypeTag();
             if (childTypeTag == ATypeTag.UNION) {
                 UnionRowSchemaNode unionChild = (UnionRowSchemaNode) child;
+                unionChild.setFieldName(fieldName);
                 unionChild.accept(this, mainRoot);
             } else if (childTypeTag != ATypeTag.MISSING) {
                 //Only write actual field values (including NULL) but ignore MISSING fields
@@ -238,7 +239,7 @@ public class RowSchemaTransformer implements IObjectRowSchemaNodeVisitor<Abstrac
             if (childTypeTag == ATypeTag.NULL || childTypeTag == ATypeTag.MISSING) {
                 actualNode = unionNode.getOriginalType();
             } else {
-                actualNode = unionNode.getOrCreateChild(childTypeTag, rowMetadata, fieldName);
+                actualNode = unionNode.getOrCreateChild(childTypeTag, rowMetadata);
             }
             nodeToAdd.accept(this, actualNode);
 
