@@ -122,7 +122,7 @@ public class RowTransformer implements ILazyVisitablePointableVisitor<AbstractRo
     }
 
     private void acceptActualNode(AbstractLazyVisitablePointable pointable, AbstractRowSchemaNode node,
-            IValueReference fieldName) throws HyracksDataException {
+                                  IValueReference fieldName) throws HyracksDataException {
         if (node.getTypeTag() == ATypeTag.UNION) {
             rowMetadata.enterNode(currentParent, node);
             AbstractRowSchemaNestedNode previousParent = currentParent;
@@ -147,33 +147,31 @@ public class RowTransformer implements ILazyVisitablePointableVisitor<AbstractRo
             pointable.accept(this, node);
         }
     }
-}
 
 
+    private void acceptActualNode(AbstractLazyVisitablePointable pointable, AbstractRowSchemaNode node) throws HyracksDataException {
+        if (node.getTypeTag() == ATypeTag.UNION) {
+            rowMetadata.enterNode(currentParent, node);
+            AbstractRowSchemaNestedNode previousParent = currentParent;
 
-private void acceptActualNode(AbstractLazyVisitablePointable pointable, AbstractRowSchemaNode node) throws HyracksDataException {
-    if (node.getTypeTag() == ATypeTag.UNION) {
-        rowMetadata.enterNode(currentParent, node);
-        AbstractRowSchemaNestedNode previousParent = currentParent;
+            UnionRowSchemaNode unionNode = (UnionRowSchemaNode) node;
+            currentParent = unionNode;
 
-        UnionRowSchemaNode unionNode = (UnionRowSchemaNode) node;
-        currentParent = unionNode;
+            ATypeTag childTypeTag = pointable.getTypeTag();
+            AbstractRowSchemaNode actualNode;
+            if (childTypeTag == ATypeTag.NULL || childTypeTag == ATypeTag.MISSING) {
+                actualNode = unionNode.getOriginalType();
+            } else {
+                actualNode = unionNode.getOrCreateChild(pointable.getTypeTag(), rowMetadata);
+            }
+            pointable.accept(this, actualNode);
 
-        ATypeTag childTypeTag = pointable.getTypeTag();
-        AbstractRowSchemaNode actualNode;
-        if (childTypeTag == ATypeTag.NULL || childTypeTag == ATypeTag.MISSING) {
-            actualNode = unionNode.getOriginalType();
+            currentParent = previousParent;
+            rowMetadata.exitNode(node);
+        } else if (pointable.getTypeTag() == ATypeTag.NULL && node.isNested()) {
+            rowMetadata.addNestedNull((AbstractRowSchemaNestedNode) node);
         } else {
-            actualNode = unionNode.getOrCreateChild(pointable.getTypeTag(), rowMetadata);
+            pointable.accept(this, node);
         }
-        pointable.accept(this, actualNode);
-
-        currentParent = previousParent;
-        rowMetadata.exitNode(node);
-    } else if (pointable.getTypeTag() == ATypeTag.NULL && node.isNested()) {
-        rowMetadata.addNestedNull((AbstractRowSchemaNestedNode) node);
-    } else {
-        pointable.accept(this, node);
     }
-}
 }
