@@ -31,6 +31,7 @@ import org.apache.asterix.om.exceptions.ExceptionUtil;
 import org.apache.asterix.om.functions.BuiltinFunctions;
 import org.apache.asterix.om.lazy.RecordLazyVisitablePointable;
 import org.apache.asterix.om.lazy.TypedRecordLazyVisitablePointable;
+import org.apache.asterix.om.pointables.ARecordVisitablePointable;
 import org.apache.asterix.om.types.ARecordType;
 import org.apache.asterix.om.types.ATypeTag;
 import org.apache.asterix.om.types.BuiltinType;
@@ -69,10 +70,11 @@ public abstract class AbstractSchemaAggregateFunction extends AbstractAggregateF
 
     private ArrayBackedValueStorage resultStorage = new ArrayBackedValueStorage();
     private RecordLazyVisitablePointable inputVal;
+    private ARecordVisitablePointable recPointable;
     private IScalarEvaluator eval;
     protected ATypeTag aggType;
-    private RowTransformer transformer;
-    private RowSchemaTransformer schemaTransformer;
+    protected RowTransformer transformer;
+    protected RowSchemaTransformer schemaTransformer;
     RowMetadata rowMetaData;
 
     @SuppressWarnings("unchecked")
@@ -86,17 +88,17 @@ public abstract class AbstractSchemaAggregateFunction extends AbstractAggregateF
         eval = args[0].createScalarEvaluator(context);
         recType = (ARecordType) aggFieldState;
         inputVal = new TypedRecordLazyVisitablePointable(recType);
+        recPointable = new ARecordVisitablePointable(recType);
+        Mutable<IRowWriteMultiPageOp> multiPageOpRef = new MutableObject<>();
+        rowMetaData = new RowMetadata(multiPageOpRef);
+        transformer = new RowTransformer(rowMetaData, rowMetaData.getRoot());
+        schemaTransformer = new RowSchemaTransformer(rowMetaData, rowMetaData.getRoot());
     }
 
     @Override
     public void init() throws HyracksDataException {
         aggType = ATypeTag.SYSTEM_NULL;
         isWarned = false;
-        Mutable<IRowWriteMultiPageOp> multiPageOpRef = new MutableObject<>();
-        rowMetaData = new RowMetadata(multiPageOpRef);
-        transformer = new RowTransformer(rowMetaData, rowMetaData.getRoot());
-        schemaTransformer = new RowSchemaTransformer(rowMetaData, rowMetaData.getRoot());
-
     }
 
     @Override
@@ -118,6 +120,7 @@ public abstract class AbstractSchemaAggregateFunction extends AbstractAggregateF
         int recordFieldId = rowMetaData.getRecordFieldIndex();
         inputVal.set(tuple.getFieldData(recordFieldId), tuple.getFieldStart(recordFieldId),
                 tuple.getFieldLength(recordFieldId));
+        // RECORD SIS TREE
         transformer.transform(inputVal);
         byte[] data = inputVal.getByteArray();
         int offset = inputVal.getStartOffset();

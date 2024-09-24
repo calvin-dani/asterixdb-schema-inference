@@ -39,7 +39,7 @@ public final class MultisetRowSchemaNode extends AbstractRowCollectionSchemaNode
 
     public MultisetRowSchemaNode() {
         super();
-//        this.fieldName = fieldName;
+        //        this.fieldName = fieldName;
     }
 
     public MultisetRowSchemaNode(DataInput input) throws IOException {

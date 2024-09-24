@@ -30,7 +30,6 @@ import org.apache.asterix.runtime.schemainferrence.RowMetadata;
 import org.apache.asterix.runtime.schemainferrence.lazy.IObjectRowSchemaNodeVisitor;
 import org.apache.hyracks.api.exceptions.HyracksDataException;
 import org.apache.hyracks.data.std.api.IValueReference;
-import org.apache.hyracks.data.std.util.ArrayBackedValueStorage;
 
 /*
 Node that defines collection nodes methods. Collection schema nodes include Array and Multiset.
@@ -52,15 +51,14 @@ public abstract class AbstractRowCollectionSchemaNode extends AbstractRowSchemaN
     private IValueReference fieldName;
 
     AbstractRowCollectionSchemaNode(IValueReference fieldName) {
-//        this.fieldName = fieldName;
+        //        this.fieldName = fieldName;
         item = null;
     }
 
     AbstractRowCollectionSchemaNode() {
-//        this.fieldName = fieldName;
+        //        this.fieldName = fieldName;
         item = null;
     }
-
 
     AbstractRowCollectionSchemaNode(DataInput input) throws IOException {
         item = AbstractRowSchemaNestedNode.deserialize(input);
@@ -111,7 +109,7 @@ public abstract class AbstractRowCollectionSchemaNode extends AbstractRowSchemaN
     }
 
     public static AbstractRowCollectionSchemaNode create(ATypeTag typeTag) {
-//        IValueReference initFieldName = new ArrayBackedValueStorage();
+        //        IValueReference initFieldName = new ArrayBackedValueStorage();
         if (typeTag == ATypeTag.ARRAY) {
             return new ArrayRowSchemaNode();
         }

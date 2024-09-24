@@ -36,9 +36,10 @@ public final class ArrayRowSchemaNode extends AbstractRowCollectionSchemaNode {
         super(fieldName);
         this.fieldName = fieldName;
     }
+
     public ArrayRowSchemaNode() {
         super();
-//        this.fieldName = fieldName;
+        //        this.fieldName = fieldName;
     }
 
     public ArrayRowSchemaNode(DataInput input) throws IOException {

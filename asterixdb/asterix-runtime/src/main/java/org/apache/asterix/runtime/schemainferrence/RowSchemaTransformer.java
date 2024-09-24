@@ -91,7 +91,7 @@ public class RowSchemaTransformer implements IObjectRowSchemaNodeVisitor<Abstrac
             IValueReference fieldName = this.toMergeFieldNamesDictionary.getFieldName(index);
             AbstractRowSchemaNode child = toMergeRoot.getChild(index);
             //            ObjectRowSchemaNode objectMergeNode = (ObjectRowSchemaNode) child;
-//            IValueReference fieldName = child.getFieldName();
+            //            IValueReference fieldName = child.getFieldName();
             ATypeTag childTypeTag = child.getTypeTag();
             if (childTypeTag == ATypeTag.UNION) {
                 UnionRowSchemaNode unionChild = (UnionRowSchemaNode) child;

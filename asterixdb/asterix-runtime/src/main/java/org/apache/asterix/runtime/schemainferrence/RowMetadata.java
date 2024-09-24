@@ -66,7 +66,7 @@ public final class RowMetadata extends AbstractRowMetadata {
 
         level = -1;
         fieldNamesDictionary = new RowFieldNamesDictionary();
-//        ArrayBackedValueStorage initFieldName = new ArrayBackedValueStorage(1);
+        //        ArrayBackedValueStorage initFieldName = new ArrayBackedValueStorage(1);
         root = new ObjectRowSchemaNode();
         metaRoot = null;
         nullWriterIndexes = new IntArrayList();
@@ -261,7 +261,7 @@ public final class RowMetadata extends AbstractRowMetadata {
     private AbstractRowSchemaNode createChild(AbstractRowSchemaNode child, ATypeTag normalizedTypeTag)
             throws HyracksDataException {
         AbstractRowSchemaNode createdChild;
-//        ArrayBackedValueStorage initFieldName = new ArrayBackedValueStorage();
+        //        ArrayBackedValueStorage initFieldName = new ArrayBackedValueStorage();
         if (child != null) {
             if (child.getTypeTag() == ATypeTag.NULL) {
                 createdChild = createChild(normalizedTypeTag);
@@ -276,8 +276,7 @@ public final class RowMetadata extends AbstractRowMetadata {
     }
 
     // Create object , array , multiset and primitive node
-    private AbstractRowSchemaNode createChild(ATypeTag normalizedTypeTag)
-            throws HyracksDataException {
+    private AbstractRowSchemaNode createChild(ATypeTag normalizedTypeTag) throws HyracksDataException {
         switch (normalizedTypeTag) {
             case OBJECT:
                 return new ObjectRowSchemaNode();
