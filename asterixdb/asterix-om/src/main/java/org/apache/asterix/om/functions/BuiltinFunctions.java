@@ -593,6 +593,7 @@ public class BuiltinFunctions {
     public static final FunctionIdentifier INTERMEDIATE_SQL_AVG =
             FunctionConstants.newAsterix("intermediate-agg-sql-avg", 1);
     //TODO (CALVIN DANI) : check local global and intermediate role.
+    public static final FunctionIdentifier SQL_SCHEMA_CLOSED = FunctionConstants.newAsterix("agg-sql-schema-closed", 1);
     public static final FunctionIdentifier SQL_SCHEMA = FunctionConstants.newAsterix("agg-sql-schema", 1);
     public static final FunctionIdentifier INTERMEDIATE_SQL_SCHEMA =
             FunctionConstants.newAsterix("intermediate-agg-sql-schema", 1);
@@ -673,6 +674,7 @@ public class BuiltinFunctions {
     public static final FunctionIdentifier SCALAR_SQL_STDDEV_SAMP = FunctionConstants.newAsterix("sql-stddev_samp", 1);
     public static final FunctionIdentifier SCALAR_SQL_STDDEV_POP = FunctionConstants.newAsterix("sql-stddev_pop", 1);
     public static final FunctionIdentifier SCALAR_SQL_SCHEMA = FunctionConstants.newAsterix("sql-schema", 1);
+    public static final FunctionIdentifier SCALAR_SQL_SCHEMA_CLOSED = FunctionConstants.newAsterix("sql-schema_closed", 1);
     public static final FunctionIdentifier SCALAR_SQL_VAR_SAMP = FunctionConstants.newAsterix("sql-var_samp", 1);
     public static final FunctionIdentifier SCALAR_SQL_VAR_POP = FunctionConstants.newAsterix("sql-var_pop", 1);
     public static final FunctionIdentifier SCALAR_SQL_SKEWNESS = FunctionConstants.newAsterix("sql-skewness", 1);
@@ -1687,6 +1689,7 @@ public class BuiltinFunctions {
         addPrivateFunction(LOCAL_SQL_AVG, LocalAvgTypeComputer.INSTANCE, true);
         addPrivateFunction(INTERMEDIATE_SQL_AVG, LocalAvgTypeComputer.INSTANCE, true);
         addFunction(SQL_SCHEMA, NullableDoubleTypeComputer.INSTANCE, true);
+        addFunction(SQL_SCHEMA_CLOSED, NullableDoubleTypeComputer.INSTANCE, true);
         addPrivateFunction(LOCAL_SQL_SCHEMA, LocalAvgTypeComputer.INSTANCE, true);
         addPrivateFunction(GLOBAL_SQL_SCHEMA, NullableDoubleTypeComputer.INSTANCE, true);
         addFunction(SQL_COUNT, AInt64TypeComputer.INSTANCE, true);
@@ -1700,6 +1703,7 @@ public class BuiltinFunctions {
         addPrivateFunction(GLOBAL_SQL_MIN, MinMaxAggTypeComputer.INSTANCE, true);
         addFunction(SCALAR_SQL_AVG, NullableDoubleTypeComputer.INSTANCE, true);
         addFunction(SCALAR_SQL_SCHEMA, NullableDoubleTypeComputer.INSTANCE, true);
+        addFunction(SCALAR_SQL_SCHEMA_CLOSED, NullableDoubleTypeComputer.INSTANCE, true);
         addFunction(SCALAR_SQL_COUNT, AInt64TypeComputer.INSTANCE, true);
         addFunction(SCALAR_SQL_MAX, scalarMinMaxTypeComputer, true);
         addFunction(SCALAR_SQL_MIN, scalarMinMaxTypeComputer, true);
@@ -2507,6 +2511,10 @@ public class BuiltinFunctions {
         addIntermediateAgg(SERIAL_GLOBAL_SQL_AVG, SERIAL_INTERMEDIATE_SQL_AVG);
         addGlobalAgg(SERIAL_SQL_AVG, SERIAL_GLOBAL_SQL_AVG);
 
+        //SQL SCHEMA CLOSED
+        addAgg(SQL_SCHEMA_CLOSED);
+        addScalarAgg(SQL_SCHEMA_CLOSED, SCALAR_SQL_SCHEMA_CLOSED);
+
         // SQL SCHEMA_INF
         addAgg(SQL_SCHEMA);
         addAgg(LOCAL_SQL_SCHEMA);
@@ -2986,6 +2994,9 @@ public class BuiltinFunctions {
     }
 
     private static void addFunction(BuiltinFunctionInfo functionInfo) {
+        if (functionInfo.getFunctionIdentifier().getName().contains("array_avg")) {
+            System.out.println("REACHED HERE");
+        }
         registeredFunctions.put(functionInfo.getFunctionIdentifier(), functionInfo);
     }
 
