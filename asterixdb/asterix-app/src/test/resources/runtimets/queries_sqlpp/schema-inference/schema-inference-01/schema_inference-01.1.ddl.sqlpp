@@ -24,13 +24,7 @@ use test;
 
 create type test.NumericType as
 {
-  id : integer,
-  int8Field : tinyint?,
-  int16Field : smallint?,
-  int32Field : integer?,
-  int64Field : bigint?,
-  floatField : float?,
-  doubleField : double?
+  id : integer
 };
 
 create internal dataset Numeric(NumericType) primary key id;

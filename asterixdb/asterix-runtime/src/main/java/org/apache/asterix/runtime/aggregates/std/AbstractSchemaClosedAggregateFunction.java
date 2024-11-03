@@ -19,6 +19,11 @@
  */
 package org.apache.asterix.runtime.aggregates.std;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.IOException;
+
 import org.apache.asterix.formats.nontagged.SerializerDeserializerProvider;
 import org.apache.asterix.om.api.IRowWriteMultiPageOp;
 import org.apache.asterix.om.base.AString;
@@ -27,18 +32,18 @@ import org.apache.asterix.om.functions.BuiltinFunctions;
 import org.apache.asterix.om.lazy.RecordLazyVisitablePointable;
 import org.apache.asterix.om.lazy.TypedRecordLazyVisitablePointable;
 import org.apache.asterix.om.pointables.ARecordVisitablePointable;
+import org.apache.asterix.om.types.ARecordType;
 import org.apache.asterix.om.types.ATypeTag;
 import org.apache.asterix.om.types.BuiltinType;
 import org.apache.asterix.om.types.EnumDeserializer;
+import org.apache.asterix.om.types.IAType;
 import org.apache.asterix.om.types.hierachy.ATypeHierarchy;
 import org.apache.asterix.om.utils.UnsafeUtil;
-import org.apache.asterix.om.types.ARecordType;
-import org.apache.asterix.om.types.IAType;
+import org.apache.asterix.runtime.schemainferrence.AbstractRowSchemaNode;
+import org.apache.asterix.runtime.schemainferrence.ObjectRowSchemaNode;
 import org.apache.asterix.runtime.schemainferrence.RowMetadata;
 import org.apache.asterix.runtime.schemainferrence.RowSchemaTransformer;
 import org.apache.asterix.runtime.schemainferrence.RowTransformer;
-import org.apache.asterix.runtime.schemainferrence.ObjectRowSchemaNode;
-import org.apache.asterix.runtime.schemainferrence.AbstractRowSchemaNode;
 import org.apache.asterix.runtime.schemainferrence.lazy.metadata.RowFieldNamesDictionary;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -53,11 +58,6 @@ import org.apache.hyracks.data.std.api.IPointable;
 import org.apache.hyracks.data.std.api.IValueReference;
 import org.apache.hyracks.data.std.util.ArrayBackedValueStorage;
 import org.apache.hyracks.dataflow.common.data.accessors.IFrameTupleReference;
-
-import java.io.ByteArrayInputStream;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.IOException;
 
 public abstract class AbstractSchemaClosedAggregateFunction extends AbstractAggregateFunction {
 
@@ -82,12 +82,12 @@ public abstract class AbstractSchemaClosedAggregateFunction extends AbstractAggr
             SerializerDeserializerProvider.INSTANCE.getSerializerDeserializer(BuiltinType.ASTRING);
 
     public AbstractSchemaClosedAggregateFunction(IScalarEvaluatorFactory[] args, IEvaluatorContext context,
-                                                 SourceLocation sourceLoc, IAType aggFieldState) throws HyracksDataException {
+            SourceLocation sourceLoc, IAType aggFieldState) throws HyracksDataException {
         super(sourceLoc);
         this.context = context;
         eval = args[0].createScalarEvaluator(context);
         recType = (ARecordType) aggFieldState;
-//        recType = (ARecordType) aggFieldState;
+        //        recType = (ARecordType) aggFieldState;
         // CREATE BASE SIS TREE
         inputVal = new TypedRecordLazyVisitablePointable(recType);
         recPointable = new ARecordVisitablePointable(recType);

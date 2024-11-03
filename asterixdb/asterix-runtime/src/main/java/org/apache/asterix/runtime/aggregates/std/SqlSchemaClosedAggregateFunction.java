@@ -30,7 +30,7 @@ import org.apache.hyracks.dataflow.common.data.accessors.IFrameTupleReference;
 public class SqlSchemaClosedAggregateFunction extends AbstractSchemaClosedAggregateFunction {
 
     public SqlSchemaClosedAggregateFunction(IScalarEvaluatorFactory[] args, IEvaluatorContext context,
-                                            SourceLocation sourceLoc, IAType aggFieldStates) throws HyracksDataException {
+            SourceLocation sourceLoc, IAType aggFieldStates) throws HyracksDataException {
         super(args, context, sourceLoc, aggFieldStates);
     }
 

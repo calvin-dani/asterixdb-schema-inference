@@ -23,20 +23,19 @@ import org.apache.asterix.om.lazy.AbstractListLazyVisitablePointable;
 import org.apache.asterix.om.lazy.FlatLazyVisitablePointable;
 import org.apache.asterix.om.lazy.ILazyVisitablePointableVisitor;
 import org.apache.asterix.om.lazy.RecordLazyVisitablePointable;
-import org.apache.asterix.om.types.ARecordType;
-import org.apache.asterix.om.types.IAType;
-import org.apache.asterix.om.types.IATypeVisitor;
 import org.apache.asterix.om.types.AOrderedListType;
+import org.apache.asterix.om.types.ARecordType;
+import org.apache.asterix.om.types.ATypeTag;
+import org.apache.asterix.om.types.AUnionType;
 import org.apache.asterix.om.types.AUnorderedListType;
 import org.apache.asterix.om.types.AbstractCollectionType;
-import org.apache.asterix.om.types.AUnionType;
+import org.apache.asterix.om.types.IAType;
+import org.apache.asterix.om.types.IATypeVisitor;
 import org.apache.asterix.runtime.schemainferrence.collection.AbstractRowCollectionSchemaNode;
 import org.apache.hyracks.api.exceptions.HyracksDataException;
 import org.apache.hyracks.data.std.api.IValueReference;
 import org.apache.hyracks.data.std.primitive.VoidPointable;
 import org.apache.hyracks.data.std.util.ArrayBackedValueStorage;
-import org.apache.asterix.om.types.ATypeTag;
-
 
 public class RowTransformer implements ILazyVisitablePointableVisitor<AbstractRowSchemaNode, AbstractRowSchemaNode>,
         IATypeVisitor<AbstractRowSchemaNode, AbstractRowSchemaNode> {
@@ -134,22 +133,21 @@ public class RowTransformer implements ILazyVisitablePointableVisitor<AbstractRo
             ATypeTag childTypeTag = collectionType.getItemType().getTypeTag();
             AbstractRowSchemaNode childNode = collectionNode.getOrCreateItem(childTypeTag, rowMetadata);
             acceptActualNode(collectionType.getItemType(), childNode);
-//        int numberOfChildren = pointable.getNumberOfChildren();
-//        for (int i = 0; i < numberOfChildren; i++) {
-//            pointable.nextChild();
-//            ATypeTag childTypeTag = pointable.getChildTypeTag();
-//            AbstractRowSchemaNode childNode = collectionNode.getOrCreateItem(childTypeTag, rowMetadata);
-//            acceptActualNode(pointable.getChildVisitablePointable(), childNode, null);
-//            /*
-//             * The array item may change (e.g., BIGINT --> UNION). Thus, new items would be considered as missing
-//             */
-//
-//        }
+            //        int numberOfChildren = pointable.getNumberOfChildren();
+            //        for (int i = 0; i < numberOfChildren; i++) {
+            //            pointable.nextChild();
+            //            ATypeTag childTypeTag = pointable.getChildTypeTag();
+            //            AbstractRowSchemaNode childNode = collectionNode.getOrCreateItem(childTypeTag, rowMetadata);
+            //            acceptActualNode(pointable.getChildVisitablePointable(), childNode, null);
+            //            /*
+            //             * The array item may change (e.g., BIGINT --> UNION). Thus, new items would be considered as missing
+            //             */
+            //
+            //        }
 
             rowMetadata.exitCollectionNode(collectionNode, 1);
             currentParent = previousParent;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -332,7 +330,6 @@ public class RowTransformer implements ILazyVisitablePointableVisitor<AbstractRo
             recType.accept(this, node);
         }
     }
-
 
     private void acceptActualNode(AOrderedListType recType, AbstractRowSchemaNode node) throws HyracksDataException {
         if (node.getTypeTag() == ATypeTag.UNION) {

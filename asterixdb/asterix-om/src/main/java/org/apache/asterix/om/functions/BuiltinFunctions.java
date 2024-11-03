@@ -674,7 +674,8 @@ public class BuiltinFunctions {
     public static final FunctionIdentifier SCALAR_SQL_STDDEV_SAMP = FunctionConstants.newAsterix("sql-stddev_samp", 1);
     public static final FunctionIdentifier SCALAR_SQL_STDDEV_POP = FunctionConstants.newAsterix("sql-stddev_pop", 1);
     public static final FunctionIdentifier SCALAR_SQL_SCHEMA = FunctionConstants.newAsterix("sql-schema", 1);
-    public static final FunctionIdentifier SCALAR_SQL_SCHEMA_CLOSED = FunctionConstants.newAsterix("sql-schema_closed", 1);
+    public static final FunctionIdentifier SCALAR_SQL_SCHEMA_CLOSED =
+            FunctionConstants.newAsterix("sql-schema_closed", 1);
     public static final FunctionIdentifier SCALAR_SQL_VAR_SAMP = FunctionConstants.newAsterix("sql-var_samp", 1);
     public static final FunctionIdentifier SCALAR_SQL_VAR_POP = FunctionConstants.newAsterix("sql-var_pop", 1);
     public static final FunctionIdentifier SCALAR_SQL_SKEWNESS = FunctionConstants.newAsterix("sql-skewness", 1);
