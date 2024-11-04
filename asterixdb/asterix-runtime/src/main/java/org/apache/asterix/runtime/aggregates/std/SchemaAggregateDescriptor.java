@@ -39,7 +39,7 @@ public class SchemaAggregateDescriptor extends AbstractAggregateFunctionDynamicD
 
     @Override
     public FunctionIdentifier getIdentifier() {
-        return BuiltinFunctions.AVG;
+        return BuiltinFunctions.SQL_SCHEMA;
     }
 
     @Override
