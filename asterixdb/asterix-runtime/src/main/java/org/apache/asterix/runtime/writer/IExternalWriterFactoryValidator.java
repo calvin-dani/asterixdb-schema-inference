@@ -18,11 +18,12 @@
  */
 package org.apache.asterix.runtime.writer;
 
+import org.apache.asterix.common.api.IApplicationContext;
 import org.apache.hyracks.algebricks.common.exceptions.AlgebricksException;
 
 public interface IExternalWriterFactoryValidator {
     /**
      * Perform the necessary validation to ensure the writer has the proper permissions
      */
-    void validate() throws AlgebricksException;
+    void validate(IApplicationContext appCtx) throws AlgebricksException;
 }

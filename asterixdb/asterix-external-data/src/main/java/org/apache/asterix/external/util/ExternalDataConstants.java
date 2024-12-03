@@ -39,6 +39,7 @@ public class ExternalDataConstants {
     // used to specify the stream factory for an adapter that has a stream data source
     public static final String KEY_STREAM = "stream";
     //TODO(DB): check adapter configuration
+    public static final String KEY_DATASET = "dataset";
     public static final String KEY_DATASET_DATABASE = "dataset-database";
     // used to specify the dataverse of the adapter
     public static final String KEY_DATASET_DATAVERSE = "dataset-dataverse";
@@ -178,6 +179,7 @@ public class ExternalDataConstants {
     public static final String CLASS_NAME_HDFS_FILESYSTEM = "org.apache.hadoop.hdfs.DistributedFileSystem";
     public static final String S3A_CHANGE_DETECTION_REQUIRED = "requireVersionChangeDetection";
     public static final String S3A_CHANGE_DETECTION_REQUIRED_CONFIG_KEY = "fs.s3a.change.detection.version.required";
+    public static final String HDFS_IO_COMPRESSION_CODECS_KEY = "io.compression.codecs";
     /**
      * input formats aliases
      */

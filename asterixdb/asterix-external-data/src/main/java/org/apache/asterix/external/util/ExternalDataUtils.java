@@ -35,6 +35,7 @@ import static org.apache.asterix.external.util.google.gcs.GCSUtils.validatePrope
 import static org.apache.asterix.om.utils.ProjectionFiltrationTypeUtil.ALL_FIELDS_TYPE;
 import static org.apache.asterix.om.utils.ProjectionFiltrationTypeUtil.EMPTY_TYPE;
 import static org.apache.asterix.runtime.evaluators.functions.StringEvaluatorUtils.RESERVED_REGEX_CHARS;
+import static org.apache.hyracks.api.util.ExceptionUtils.getMessageOrToString;
 import static org.msgpack.core.MessagePack.Code.ARRAY16;
 
 import java.io.ByteArrayOutputStream;
@@ -71,11 +72,12 @@ import org.apache.asterix.external.api.IExternalDataSourceFactory.DataSourceType
 import org.apache.asterix.external.api.IInputStreamFactory;
 import org.apache.asterix.external.api.IRecordReaderFactory;
 import org.apache.asterix.external.input.record.reader.abstracts.AbstractExternalInputStreamFactory.IncludeExcludeMatcher;
+import org.apache.asterix.external.input.record.reader.aws.delta.AwsS3DeltaReaderFactory;
 import org.apache.asterix.external.library.JavaLibrary;
 import org.apache.asterix.external.library.msgpack.MessagePackUtils;
 import org.apache.asterix.external.util.ExternalDataConstants.ParquetOptions;
+import org.apache.asterix.external.util.aws.s3.S3AuthUtils;
 import org.apache.asterix.external.util.aws.s3.S3Constants;
-import org.apache.asterix.external.util.aws.s3.S3Utils;
 import org.apache.asterix.external.util.azure.blob_storage.AzureConstants;
 import org.apache.asterix.external.util.google.gcs.GCSConstants;
 import org.apache.asterix.om.types.ARecordType;
@@ -109,6 +111,12 @@ import org.apache.iceberg.FileScanTask;
 import org.apache.iceberg.Table;
 import org.apache.iceberg.hadoop.HadoopTables;
 import org.apache.iceberg.io.CloseableIterable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import io.delta.kernel.defaults.engine.DefaultEngine;
+import io.delta.kernel.engine.Engine;
+import io.delta.kernel.exceptions.KernelException;
 
 public class ExternalDataUtils {
 
@@ -116,6 +124,8 @@ public class ExternalDataUtils {
     private static final Map<ATypeTag, IValueParserFactory> valueParserFactoryMap = new EnumMap<>(ATypeTag.class);
     private static final int DEFAULT_MAX_ARGUMENT_SZ = 1024 * 1024;
     private static final int HEADER_FUDGE = 64;
+
+    private static final Logger LOGGER = LogManager.getLogger();
 
     static {
         valueParserFactoryMap.put(ATypeTag.INTEGER, IntegerParserFactory.INSTANCE);
@@ -505,6 +515,31 @@ public class ExternalDataUtils {
         }
     }
 
+    public static void validateDeltaTableExists(Map<String, String> configuration) throws CompilationException {
+        Configuration conf = new Configuration();
+        String tableMetadataPath = null;
+        if (configuration.get(ExternalDataConstants.KEY_EXTERNAL_SOURCE_TYPE)
+                .equals(ExternalDataConstants.KEY_ADAPTER_NAME_AWS_S3)) {
+            AwsS3DeltaReaderFactory.applyConfiguration(configuration, conf);
+            tableMetadataPath = S3Constants.HADOOP_S3_PROTOCOL + "://"
+                    + configuration.get(ExternalDataConstants.CONTAINER_NAME_FIELD_NAME) + '/'
+                    + configuration.get(ExternalDataConstants.DEFINITION_FIELD_NAME);
+        } else {
+            throw new CompilationException(ErrorCode.EXTERNAL_SOURCE_ERROR,
+                    "Delta format is not supported for the external source type: "
+                            + configuration.get(ExternalDataConstants.KEY_EXTERNAL_SOURCE_TYPE));
+        }
+
+        Engine engine = DefaultEngine.create(conf);
+        io.delta.kernel.Table table = io.delta.kernel.Table.forPath(engine, tableMetadataPath);
+        try {
+            table.getLatestSnapshot(engine);
+        } catch (KernelException e) {
+            LOGGER.info("Failed to get latest snapshot for table: {}", tableMetadataPath, e);
+            throw CompilationException.create(ErrorCode.EXTERNAL_SOURCE_ERROR, e, getMessageOrToString(e));
+        }
+    }
+
     public static void prepareIcebergTableFormat(Map<String, String> configuration, Configuration conf,
             String tableMetadataPath) throws AlgebricksException {
         HadoopTables tables = new HadoopTables(conf);
@@ -675,7 +710,7 @@ public class ExternalDataUtils {
 
         switch (type) {
             case ExternalDataConstants.KEY_ADAPTER_NAME_AWS_S3:
-                S3Utils.validateProperties(configuration, srcLoc, collector);
+                S3AuthUtils.validateProperties(appCtx, configuration, srcLoc, collector);
                 break;
             case ExternalDataConstants.KEY_ADAPTER_NAME_AZURE_BLOB:
                 validateAzureBlobProperties(configuration, srcLoc, collector, appCtx);
@@ -936,8 +971,8 @@ public class ExternalDataUtils {
     }
 
     public static boolean supportsPushdown(Map<String, String> properties) {
-        //Currently, only Apache Parquet format is supported
-        return isParquetFormat(properties);
+        //Currently, only Apache Parquet/Delta table format is supported
+        return isParquetFormat(properties) || isDeltaTable(properties);
     }
 
     /**
@@ -1104,8 +1139,7 @@ public class ExternalDataUtils {
                 protocol = nodePathPair[0];
                 break;
             case ExternalDataConstants.KEY_ADAPTER_NAME_HDFS:
-                protocol = ExternalDataConstants.KEY_HDFS_URL;
-                break;
+                return configurations.get(ExternalDataConstants.KEY_HDFS_URL).replaceAll("/+$", "");
             default:
                 return "";
         }
